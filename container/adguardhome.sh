@@ -9,6 +9,8 @@
 #
 # last modification: 2023-06-15
 # -----
+#
+# Ifyou use this container, you should mount some volumes like the config-file
 
 function getGitHubRelease () {
 	echo=$(curl -sL "https://api.github.com/repos/${1}/releases/latest" | jq -r ".tag_name")
@@ -38,7 +40,7 @@ if [[ command -v buildah]]; then
 	adguardparam="--config /etc/AdGuardHome/adguardhome.yml"
 	adguardparam+=" --service start"
 	adguardparam+=" --no-check-update"
-	buildah config --entrypoint "/opt/AdGuard/AdGuardHome --config /etc/AdGuardHome/adguardhome.yml --service start"
+	buildah config --entrypoint "/opt/AdGuard/AdGuardHome ${adguardparam}"
 
 	# cleanup process - also make cleanup container fro busybox
 	removeSmylinks="find /sbin /bin /usr/bin /usr/local/bin -type 1 -exec rm -rf {} \;; \\"
