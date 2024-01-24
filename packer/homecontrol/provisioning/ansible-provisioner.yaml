@@ -1,0 +1,130 @@
+# @author:  Gregor A. Segner  - gregor.segner@gmail.com
+# @repo:    https://github.com/g4s/boxes
+# @issues:  https://github.com/g4s/boxes/issues
+# @description:
+#     This playbook is intended to be used to deploy a small, but powerfull
+#     smarthome logic node.
+#     After some prequesites are satisfied externaly, this playbook will
+#     install and configure the following components:
+#     
+#       - cockpit + cockpit-podman
+#       - toolchain for building oci-compliant container (buildah)
+#       - podman
+#       - nginx (as a reverse proxy)
+#       - mqttwarn
+#
+#     Also this playbook will create various oci-compliant container:
+#
+#       - NodeRed
+#       - Homebridge
+#       - mosquitto
+#
+#     Volume-configuration:
+#
+#       - configure second disk as volumegroup
+#       - mounting the volumegroup to /mnt/configstore
+#
+# last modification: 2024-01-22
+---
+
+- name: provision homecontroller
+  hosts: 127.0.0.1
+  connection: local
+
+  vars:
+    immutable_config: false
+    role_dir:         "/usr/share/ansible/roles"
+    update_roles:
+      - "https://github.com/g4s/de.seafi.homecontrol.git"
+    nodered_ui_port:  1880
+
+  tasks:
+    - name: ensure system is up to date
+      # updating the system with package managers
+      block:
+        - ansible.builtin.dnf:
+            name: "*"
+            state: latest
+
+    # loading and configure the provisioning tasks
+    - ansible.builtin.include_role:
+        name: de.seafi.homecontrol
+      vars:
+        container_dir: "/usr/share/container-images"        
+        myutnmanager_version: "4.0.5"
+        myutnmanager_url: "https://www.seh-technology.com/fileadmin/user/downloads/deviceserver/tools/sehutnmanager-rpm_linux_64bit-{{ myutnmanager_verson }}.zip"
+        tailscale_repo: "https://pkgs.tailscale.com/stable/fedora/tailscale.repo"
+
+    - name: ensure homecontrol has immutable configuration
+      # deploy some components for self-updating the box:
+      #  - a simple wrapper script for updating
+      #  - a systemd service unit
+      #  - a systemd timerd unit
+      #  - activating the timer unit
+      #
+      # if you provide a uptime-robot heartbeat URL in uptime_heartbeat
+      # you can monitor the execution in uptime-robot.
+      block:
+        - ansible.builtin.copy:
+            dest: "/sbin/self-update"
+            content: |
+              #! /bin/bash
+
+              {% for role in update_roles %}
+              ansible-galaxy install --roles-path {{ role }}
+              {% endfor %}
+
+              cd /usr/share/config && ansible-playbook local.yaml
+            owner: root
+            group: root
+            mode: "0751"
+
+        - ansible.builtin.copy:
+            dest: "/etc/systemd/system/self-update.service"
+            content: |
+              [Unit]
+              Description=self-updating the system with ansible
+
+              [Service]
+              Type=oneshot
+              ExecStart=/sbin/self-upadate
+              {% if uptimerobot_heartbeat is defined %}
+              ExecStartPost="curl --insecure {{ uptimerobot_heartbeat }} > /dev/null 2>&1"
+              {% endif %}
+              User=root
+
+              [Install]
+              WantedBy=multi-user.target
+            owner: root
+            group: root
+            mode: "0777"
+
+        - ansible.builtin.copy:
+            dest: "/etc/systemd/system/self-update.timer"
+            content: |
+              [Unit]
+              Description=self-updating the system with ansible
+
+              [Timer]
+              OnBootSec=5min
+              OnUnitActiveSec=15min
+              Unit=self-update.service
+
+              [Install]
+              WantedBy=multi-user.target
+            owner: root
+            group: root
+            mode: "0777"
+
+        - ansible.builtin.service:
+            name: self-update.timer
+            state: started
+            enabled: true
+      when: immutable_config == true
+   
+      
+  handler:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: "nginx"
+        state: restarted

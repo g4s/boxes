@@ -1,0 +1,26 @@
+---
+
+- git: https://github.com/g4s/boxes.git
+  version: master
+  files:
+    - src: container/nodered.sh     # @ToDo implement
+      dst: container/nodered/build.sh
+    - src: container/homebridge.sh  # @ToDo implement
+      dst: container/homebridge/build.sh
+
+    # mqtt related container @ToDo must all be implemented
+    - src: container/mosquitto.sh
+      dst: container/mqtt/mosquitto.sh
+    - src: container/mqttwarn.sh
+      dst: container/mqtt/mqttwarn.sh
+    - src: container/mqttwol.sh
+      dst: continer/mqtt/mqttwol.sh
+
+    - src: container/influx.sh
+      dst: container/influx/build.sh
+
+- git: https://github.com/g4s/collecction.git
+  version: master
+  files:
+    - src: nix/mqttwol/mqttwol.py
+      dst: container/mqtt/mqttwol.sh
