@@ -1,0 +1,1 @@
+The intention for packageing minIO in a packer file was to deploy minIO in a development env.
