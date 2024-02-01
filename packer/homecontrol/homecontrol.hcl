@@ -71,7 +71,10 @@ build {
       "cd /usr/share/config/ && gilt overlay",
       "mkdir -p ${var.ansible_rolepath}",
       "ansible-galaxy collection install containers.podman",
-      "ansible-galaxy install --roles-path ${var.ansible_rolepath} https://github.com/g4s/de.seafi.homecontrol.git"
+      "ansible-galaxy install --roles-path ${var.ansible_rolepath} https://github.com/g4s/de.seafi.homecontrol.git",
+      "ansible-galaxy install --roles-path ${var.ansible_rolepath} https://github.com/g4s/de.seafi.nginx.git",
+      "ansible-galaxy install --roles-path ${var.ansible_rolepath} https://github.com/g4s/de.seafi.minimalinstall.git",
+      "ansible-galaxy install --roles-path ${var.ansible_rolepath} https://github.com/g4s/de.seafi.tailscale.git"
       ]
     }
 

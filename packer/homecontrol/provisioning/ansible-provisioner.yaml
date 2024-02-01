@@ -35,7 +35,10 @@
     immutable_config: false
     role_dir:         "/usr/share/ansible/roles"
     update_roles:
+      - "https://github.com/g4s/de.seafi.minimalinstall.git"
       - "https://github.com/g4s/de.seafi.homecontrol.git"
+      - "https://github.com/g4s/de.seafi.nginx.git"
+      - "https://github.com/g4s/de.seafi.tailscale.git"
     nodered_ui_port:  1880
 
   tasks:
@@ -48,12 +51,20 @@
 
     # loading and configure the provisioning tasks
     - ansible.builtin.include_role:
+        name: de.seafi.minimalinstall
+        
+    - ansible.builtin.include_role:
+        name: de.seafi.tailscale
+        
+    - ansible.builtin.inlcude_role:
+        name: de.seafi.nginx
+
+    - ansible.builtin.include_role:
         name: de.seafi.homecontrol
       vars:
         container_dir: "/usr/share/container-images"        
         myutnmanager_version: "4.0.5"
         myutnmanager_url: "https://www.seh-technology.com/fileadmin/user/downloads/deviceserver/tools/sehutnmanager-rpm_linux_64bit-{{ myutnmanager_verson }}.zip"
-        tailscale_repo: "https://pkgs.tailscale.com/stable/fedora/tailscale.repo"
 
     - name: ensure homecontrol has immutable configuration
       # deploy some components for self-updating the box:
@@ -71,7 +82,7 @@
               #! /bin/bash
 
               {% for role in update_roles %}
-              ansible-galaxy install --roles-path {{ role }}
+              ansible-galaxy install --roles-path /usr/share/ansible/roles {{ role }}
               {% endfor %}
 
               cd /usr/share/config && ansible-playbook local.yaml
@@ -121,10 +132,3 @@
             state: started
             enabled: true
       when: immutable_config == true
-   
-      
-  handler:
-    - name: restart nginx
-      ansible.builtin.service:
-        name: "nginx"
-        state: restarted
