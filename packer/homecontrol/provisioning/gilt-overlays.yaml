@@ -16,8 +16,8 @@
     - src: container/mqttwol.sh
       dst: continer/mqtt/mqttwol.sh
 
-    - src: container/influx.sh
-      dst: container/influx/build.sh
+    - src: container/influxdb.sh
+      dst: container/influxdb/build.sh
 
 - git: https://github.com/g4s/collecction.git
   version: master
