@@ -31,7 +31,7 @@ function build_nc(){
 
     # deploy teleport agent if necessary
     # this will also break the microservice principle
-    if [[ "${enable_teleport}" ]]; then
+    if [[ "${enable_teleport}" == "y" ]]; then
         buildah run ${container} "curl ${teleportinstaller} | bash -s ${teleportversion} ${teleportedition}" 
     fi
 
