@@ -3,7 +3,7 @@
     @license: BSD-3
 --->
 
-#Boxes
+# Boxes
 This repository contains various recipes for building OCI-compliant container 
 with buildah or virtual machines with packer and a supportet hypervisor.
 
@@ -18,6 +18,7 @@ at the moment the following services:
   * [adgurdhome](./container/adguardhome.sh)
   * [influxdb](./container/influxdb.sh)
   * [mowquitto MQTT broker](./container/mosquitt.sh)
+  * [NextCloud](./container/nextcloud)
 
 ## virtual-machines with packer
   * [homecontrol](./packer/homecontrol/README.md) - a logic node for smarthomes on steroids
