@@ -67,7 +67,9 @@ function main(){
         echo "found buildah on system..."
     }
 
-    # this function
+    # this function will deploy all necessary container on the local host.
+    # This also includes assembly configuration files and systemd-units.
+    # For assembling this files we use the envsubst command.
     function deploy_container(){
         if [[ ! $(command -v podman) ]]; then
             echo "could not find podman - will install on host..."
