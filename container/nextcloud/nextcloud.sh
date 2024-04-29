@@ -22,8 +22,6 @@
 # ATTENTION: DO NOT USE THIS SCRIPT AT THE MOMENT - STILL DRAFT!!!
 
 function build_nc(){
-    local nczipball="https://download.nextcloud.com/server/releases/latest.zip"
-
     echo "will install now NextCloud with nginx support..."
     container=$(buildah from fedora)
     contaiermnt=$(buildah mount ${container})
@@ -33,20 +31,18 @@ function build_nc(){
     # installing nginx
     buildah run "${container} dnf install -y nginx"
 
-    # fetching nextcloud zipball and copy to container
-    cd ./tmp
-    curl -O ${nczipball}
-    unzip latest.zip
-
-    cp -R ./nextcloud ${contaiermnt}/var/www/
-
-    cd ..
+    # copy nextcloud data into container
+    cp -R ${BASEDIR}/tmp/nextcloud ${contaiermnt}/var/www/
 
     # @ToDo reconfigure nginx.conf
     # @ToDo (re)configure nextcloud
 }
 
 function main(){
+    local BASEDIR=${BASH_SOURCE}
+    local nczipball="https://download.nextcloud.com/server/releases/latest.zip"
+    local dragonflyball="https://dragonflydb.gateway.scarf.sh/latest/dragonfly-x86_64.tar.gz"
+
     # defining some local functions
     function pckg_manager(){
         if [[ $(command -v dnf) ]]; then
@@ -71,6 +67,7 @@ function main(){
         echo "found buildah on system..."
     }
 
+    # this function
     function deploy_container(){
         if [[ ! $(command -v podman) ]]; then
             echo "could not find podman - will install on host..."
@@ -126,7 +123,58 @@ function main(){
     # let's check if we can build container images on this host
     checkinst_buildah
 
-    mkdir ./tmp
+    mkdir ${BASEDIR}/tmp
+
+    cd ${BASEDIR}/tmp
+    curl -O ${nczipball}
+    unzip latest.zip
+    cd ${BASEDIR}
+
+    while true; do
+        read -p "should NextCloud support redis? [y/N] " redis_enable
+        case $redis_enable in
+            [yY] )
+                redis_support = "y"
+                echo "it's possible to build a local redis container."
+                echo "we will use dragonfly as a redis alternative."
+                while true; do
+                    read -p "do you want to build a new redis container? [y/N] " build_dragonfly
+                    case $build_dragonfly in
+                        [yY] )
+                            build_dragonfly="y"
+                            break;;
+                        [nN] )
+                            read -p "enter postgreSQL database host: " nc_db_host
+                            read -p "enter database user: " nc_db_user
+                            read -p -s "enter database user password: " nc_db_password
+                            read -p "enter database name: " nc_db_name
+                            read -p "enter table prefix: " nc_db_tableprefix
+                            nc_db_tableprefix=${nc_db_tableprefix:-oc_}
+                            break;;
+                    esac
+                done
+                break;;
+            [nN] )
+                redis_support = "n"
+                break;;
+        esac
+    done
+
+
+    if [[ "${redis_support}" == "y"]] -a [[ "${build_dragonfly}"  = "y" ]]; then
+        # fetch install tar-ball
+        cd ${BASEDIR}/tmp
+        curl -O ${dragonflyball}
+        tar zxf dragonfly-x86_64.tar.gz
+        cd ${BASEDIR}
+
+        # build dragonfly container
+        # dragonfly is a redis API compliant aternative
+        # --> https://www.dragonflydb.io/
+        build_dragonfly
+    fi
+
+    # build postgresql container --> build_postgresql
 
     build_nc
 
@@ -142,5 +190,5 @@ function main(){
         esac
     done
 
-    rm -rf ./tmp
+    rm -rf ${BASEDIR}/tmp
 }
