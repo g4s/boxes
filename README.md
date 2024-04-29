@@ -17,7 +17,7 @@ All of this container can be deployed to an OCI-compliant container engine
 at the moment the following services:
   * [adgurdhome](./container/adguardhome.sh)
   * [influxdb](./container/influxdb.sh)
-  * [mowquitto MQTT broker](./container/mosquitt.sh)
+  * [mosquitto MQTT broker](./container/mosquitt.sh)
   * [NextCloud](./container/nextcloud)
 
 ## virtual-machines with packer
