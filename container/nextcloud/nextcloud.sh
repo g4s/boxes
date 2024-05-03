@@ -21,10 +21,32 @@
 #
 # ATTENTION: DO NOT USE THIS SCRIPT AT THE MOMENT - STILL DRAFT!!!
 
+function build_dragonfly(){
+    local requirement="\n CPU: 1 core \n RAM: 4gb"
+    local origdocs="https://www.dragonflydb.io/docs/"
+
+    echo "will install dragonflydb on host as container..."
+    container=$(buildah from fedora)
+    containermnt=$(buildah mount ${container})
+
+    cp -R ${BASEDIR}/tmp/dragonfly-x86_64 ${contaiermnt}/opt/dragonfly
+
+    buildah config --entrypoint "/opt/dragonfly" ${container}
+
+    buildah config --label org.opencontainers.image.documentation="https://github.com/g4s/boxes/container/nextcloud/Readme.md" ${container}
+    buildah config --label org.opencontainers.image.authors="Gregor A. Segner <gregor.segner@gmail.com> ${container}"
+    buildah config --label org.opencontainers.image.url=hcr.io/g4s/dragonfly:latest
+    buildah config --label org.opencontainers.image.source=https://github.com/g4s/boxes/container/nextcloud
+    buildah config --annotation requirements="${requirements}" ${container}
+    buildah config --annotation docs="${origdocs}" ${container}
+
+    buildah commit -rm --squash ${container} dragonfly
+}
+
 function build_nc(){
     echo "will install now NextCloud with nginx support..."
     container=$(buildah from fedora)
-    contaiermnt=$(buildah mount ${container})
+    containermnt=$(buildah mount ${container})
 
     buildah run "${container} dnf update && dnf upgrade -y"
 
@@ -32,7 +54,7 @@ function build_nc(){
     buildah run "${container} dnf install -y nginx"
 
     # copy nextcloud data into container
-    cp -R ${BASEDIR}/tmp/nextcloud ${contaiermnt}/var/www/
+    cp -R ${BASEDIR}/tmp/nextcloud ${containermnt}/var/www/
 
     # @ToDo reconfigure nginx.conf
     # @ToDo (re)configure nextcloud
@@ -132,6 +154,25 @@ function main(){
     unzip latest.zip
     cd ${BASEDIR}
 
+    ##########################################################################
+    #  begin the main loop, first we will print a greeter
+    #
+    echo "Welcome to the fully automated NextCloud Service install script"
+    echo "\n"
+    echo "This script will guide you during the whole installation process."
+    echo "For modularity the most components will deployed as oci-compliant"
+    echo "container."
+    echo "The installation process includes:"
+    echo "    * nextcloud as a container"
+    echo "    * postgreSQL as a container"
+    echo "    * FPM worker as container"
+    echo "    * dragonflydb as a container"
+    echo "    * collaboraonline as a container"
+    echo "    * overleaf as a container"
+    echo "    * nginx as reverse-proxy"
+    echo "    * teleport.io as zero trust solution"
+    echo "    * tailscale-client"
+
     while true; do
         read -p "should NextCloud support redis? [y/N] " redis_enable
         case $redis_enable in
@@ -163,6 +204,7 @@ function main(){
     done
 
 
+    # initiate redis / dragonfly-db build
     if [[ "${redis_support}" == "y"]] -a [[ "${build_dragonfly}"  = "y" ]]; then
         # fetch install tar-ball
         cd ${BASEDIR}/tmp
