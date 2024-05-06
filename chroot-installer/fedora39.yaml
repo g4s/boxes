@@ -77,6 +77,60 @@
 - ansible.builtin.wait_for_connection:
   delegate_to: {{ installhost.stdout }}
 
+# before we can deploy the operating system we require a proper
+# configured filesystem.
+#   - retrieve the size of the created raid
+#   - create efi partition on this device with a size of 512 MB and
+#     labled as EFI (later mounted as /boot)
+#   - use the entire disk for operation system
+- name: prepare host filesystem
+  block:
+    - ansible.builtin.command: 'lsblk -no SIZE /dev/sda | head -1'
+      register: osdisk_size
+
+    - community.general.parted:
+        device: /dev/sda
+        number: 1
+        fs_type: fat32
+        part_end: 512MB
+        label: gpt
+        flags: [ esp ]
+        state: present
+
+    - community.general.parted:
+        device: /dev/sda
+        number: 2
+        fs_type: ext4
+        part_start: 512MB
+        state: present
+
+    - anible.posix.mount:
+        path: /mnt
+        src: /dev/sda2
+        fstype: ext4
+        state: present
+
+    - ansible.builtin.file:
+        path: '/mnt/{{ item }}'
+        state: directory
+        loop:
+          - 'boot'
+          - 'proc'
+
+    - ansible.posix.mount:
+        path: /mnt/boot
+        src: /dev/sda1
+        fs_type: fat32
+        state: present
+
+    - ansible.posix.mount:
+        path: /mnt/proc
+        src: /proc
+        fs_type: none
+        opts: bind
+        state: present
+
+
 # finally install fedora from livesystem
 - ansible.builtin.shell: |
     # installing base system
