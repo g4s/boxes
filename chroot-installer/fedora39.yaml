@@ -1,9 +1,31 @@
 # This is a simple ansible playbook for install a minimal Fedora-System in a
-# chroot-lioke manner on bare-metal. ( In conjunction with a SuperMicro BMC).
+# chroot-lioke manner on bare-metal. (In conjunction with a SuperMicro BMC).
 #
 # For refference you can finde the SuperMicro documentation under 
 # --> https://bit.ly/3wjXXAb
 ---
+
+- name: configure hardware-base RAID-1 for operating system
+  block:
+    - community.general.redfish_command:
+        category: Systems
+        command: SmcStorage.CreateVolume
+        ControllerID: 0
+        Raid: "RAID1"
+        PhysicalDrives: '["HA-RAID.0.Disk.0", "HA-RAID.0.Disk.1"]'
+        baseuri: {{ o_host_bmc }}
+        username: {{ ansible-bmc-user }}
+        password: {{ ansible-bmc-passowrd }}
+
+    - community.general.redfish_command:
+        category: Systems
+        command: SmcHARAIDController.Save
+        ControllerID: 0
+        BIOSBootMode: 'PauseOnError'
+        baseurl: {{ o_host_bmc}}
+
+# original the plan was to mount an installation media as virtual media
+# after some tests it seems more convinent to utilize a PXE-server
 
 - name: attach os-installer and reboot machine
   block:
