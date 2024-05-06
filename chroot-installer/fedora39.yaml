@@ -1,3 +1,8 @@
+# This is a simple ansible playbook for install a minimal Fedora-System in a
+# chroot-lioke manner on bare-metal. ( In conjunction with a SuperMicro BMC).
+#
+# For refference you can finde the SuperMicro documentation under 
+# --> https://bit.ly/3wjXXAb
 ---
 
 - name: attach os-installer and reboot machine
@@ -56,16 +61,18 @@
     dnf install --installroot=/mnt \
       --releasever=39 \
       --setopt=install_weak_deps=False \
-      glibc-langpack-en \
-      rtkit file NetworkManager audit \
-      dnf dnf-plugins-core firewalld iproute \
-      policycoreutils rpm selinux-policy-targeted \
-      shadow-utils sudo vim-minimal hostname \
-      iputils less passwd procps-ng
+      bash coreutils @Core
 
-    # adding tailscale repo
+    # preconfigure system
+    chroot /mnt
+
+    # deploy management account
+    chroot /mnt bash -c useradd {{ ansible_user }}
+
+    # adding tailscale repo and deploy tailscale
     chroot /mnt bash -c dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
     chroot /mnt bash -c dnf clean all
     chroot /mnt bash -c dnf install -y tailscale
     chroot /mnt bash -c systemctl enable tailscaled
+    chroot /mnt bash -c tailscale up --authkey={{ tailscale_authkey }}
   delegate_to: {{ installhost.stdout }}
