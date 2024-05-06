@@ -1,0 +1,71 @@
+---
+
+- name: attach os-installer and reboot machine
+  block:
+    - community.general.redfish_commmand:
+        category: Manager
+        command: VirtualMediaInsert
+        basuri: '{{ o_host_bmc }}'
+        username: {{ ansible-bmc-user }}
+        password: {{ ansible-bmc-password }}
+        virtual_media:
+          image_url: {{ installer_iso }}
+          media_types:
+            - CD
+            - DVD
+      
+    - community.general.redfish_command:
+        category: Systems
+        command: SetOneTimeBoot
+        boot_override_mode: UEFI
+        bootdevice: UsbCd
+        basuri: {{ o_host_bmc }}
+        username: {{ ansible-bmc-user }}
+        passowrd: {{ ansible-bmc-password }}
+
+    - community.general.redfish_command:
+        category: Systems
+        command: PowerForceRestart
+        baseuri: {{ o_host_bmc }}
+        username: {{ ansible-bmc-user }}
+        password: {{ ansible-bmc-password }}
+
+
+## installing fedora in an automated way
+#  for this the new machine will boot in a minimal system with enabled sshd
+#  the installation will be performed in a chroot env
+- ansible.builtin.shell: |
+    ip=$(arp -a | grep {{ o_primary_mac }} | cut -d ' ' -f | cut -c 2- | rev | cut -c 2- | rev)
+    echo ip
+  delegate_to: localhost
+  register: installhost
+
+- ansible.builtin.add_host:
+    name: {{ installhost.stdout }}
+    groups:
+      - ai
+    ansible_user: {{ install_sys_user }}
+    ansible_password: {{ install_sys_password }}
+
+- ansible.builtin.wait_for_connection:
+  delegate_to: {{ installhost.stdout }}
+
+# finally install fedora from livesystem
+- ansible.builtin.shell: |
+    # installing base system
+    dnf install --installroot=/mnt \
+      --releasever=39 \
+      --setopt=install_weak_deps=False \
+      glibc-langpack-en \
+      rtkit file NetworkManager audit \
+      dnf dnf-plugins-core firewalld iproute \
+      policycoreutils rpm selinux-policy-targeted \
+      shadow-utils sudo vim-minimal hostname \
+      iputils less passwd procps-ng
+
+    # adding tailscale repo
+    chroot /mnt bash -c dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+    chroot /mnt bash -c dnf clean all
+    chroot /mnt bash -c dnf install -y tailscale
+    chroot /mnt bash -c systemctl enable tailscaled
+  delegate_to: {{ installhost.stdout }}
