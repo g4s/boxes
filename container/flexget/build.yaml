@@ -11,8 +11,17 @@ steps:
             password: ''
         mode:        'build'
         baseimage:   'latest'
-        author:      ''
-        authormail:  ''
+        author:      'Gregor A. Segner'
+        authormail:  'gregor.segner@gmail.com'
+
+  # retrieve alternative some data from env-vars
+  - name: pypyr.steps.env:
+    run: !py author != 'Gregor A. Segner'
+    in:
+      env:
+        get:
+          build_author: author
+          build_authormail: authormail
 
   - name: pypyr.steps.cmd:
     comment: checking if buildah is present on system
@@ -31,7 +40,7 @@ steps:
     comment: building the flexget container if buildah is installed
     run: !py buildah_installed == 0
     in: 
-      cmd: bash ./flexget.sh -t {baseimage}
+      cmd: bash ./flexget.sh -t {baseimage} -a {author} -m {authormail}
 
   ## deploy as artefact
   - name: pypyr.steps.cmd:
