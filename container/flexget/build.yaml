@@ -1,0 +1,47 @@
+
+context_parser: pypyr.parser.keyvaluepairs
+steps:
+  - name: pypyr.steps.default:
+    comment: setting default for pipelines
+    in:
+      defaults:
+          registry:
+            url:      'https://ghcr.io'
+            user:     ''
+            password: ''
+        mode:        'build'
+        baseimage:   'latest'
+        author:      ''
+        authormail:  ''
+
+  - name: pypyr.steps.cmd:
+    comment: checking if buildah is present on system
+    run: !py mode == 'build'
+    in:
+      cmd: command -v buildah
+      save: True
+
+  - name: pypyr.steps.set:
+    comment: setting some vars
+    run: !py mode == 'build'
+    in:
+      buildah_installed: cmdOut.returncode
+
+  - name: pypyr.steps.cmd:
+    comment: building the flexget container if buildah is installed
+    run: !py buildah_installed == 0
+    in: 
+      cmd: bash ./flexget.sh -t {baseimage}
+
+  ## deploy as artefact
+  - name: pypyr.steps.cmd:
+    comment: login on registry
+    run: !py mode == 'push'
+    in:
+      cmd: buildah login --username {registry.user} --password {registry.password} {registry.url}
+
+  - name: pypyr.steps.cmd:
+    comment: push to registry
+    run: !py mode == 'push'
+    in:
+      cmd buildah push flexget {registry.url}
