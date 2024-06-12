@@ -16,7 +16,7 @@ steps:
 
   # retrieve alternative some data from env-vars
   - name: pypyr.steps.env:
-    run: !py author != 'Gregor A. Segner'
+    run: !py author == 'Gregor A. Segner'
     in:
       env:
         get:

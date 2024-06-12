@@ -1,5 +1,18 @@
 #! /bin/bash
 
+function help(){
+    echo "this script is for building an oci container containing flexget"
+    echo ""
+    echo "flexget.sh [OPTION]"
+    echo ""
+    echo "OPTIONS:"
+    echo "    -a <author>   the author of the container"
+    echo "    -m <mail>     mail adress of the author"
+    ehco "    -t version    the version of the fedora base image"
+    echo "    -?            this help"
+}
+
+
 function main(){
     baseimg="fedora"
 
@@ -47,6 +60,8 @@ while getopts a:t: opt; do
         a) author="${OPTARG}";;
         m) author_mail="${OPTARG}";;
         t) imagetag="${OPTARG}";;
+        ?) help;;
+        *) help;;
     esac
 done
 main
