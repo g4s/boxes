@@ -24,4 +24,4 @@ at the moment the following services:
 
 ## virtual-machines with packer
   * [homecontrol](./packer/homecontrol/README.md) - a logic node for smarthomes on steroids
-  * [mediaserver](.packer/mediaserver/Readme.md) - a feature packed media server based on Jellyfin
+  * [mediaserver](./packer/mediaserver/Readme.md) - a feature packed media server based on Jellyfin
