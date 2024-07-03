@@ -10,6 +10,8 @@ with buildah or virtual machines with packer and a supportet hypervisor.
 This means, that the hard dependencies are
   * Harshicorps [packer](https://www.packer.io)
   * [buildah](https://buildah.io)
+  * [pypyr](https://pypyr.io)
+  * gilt
 
 ## OCI-compliant container
 All of this container can be deployed to an OCI-compliant container engine 
@@ -22,3 +24,4 @@ at the moment the following services:
 
 ## virtual-machines with packer
   * [homecontrol](./packer/homecontrol/README.md) - a logic node for smarthomes on steroids
+  * [mediaserver](.packer/mediaserver/Readme.md) - a feature packed media server based on Jellyfin
