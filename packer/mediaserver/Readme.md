@@ -17,3 +17,7 @@ all techniques used in the [boxes repo](https://github.com/g4s/boxes).
       - which also included user-home auto import
     - a system management dashboard with cockpit
     - automatic deploy to tailscale
+
+## Architecture
+
+![Mediaserver architecture](./assets/Mediaserver.png)
