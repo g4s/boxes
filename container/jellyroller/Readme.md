@@ -17,3 +17,25 @@ pypyr pipeline:
 ```bash
 pypyr ./build.yaml
 ```
+
+## Using jellyroller
+Notice: this documentation will use podman for managing container, but feel free
+to use what you want.
+
+Notice: it's recommended to consult the original jellyroller documentation.
+
+jellyroller is packaged inside an OCI-compliant container. Before you can use
+it first time, it is mandatory to configure access to your jellyfin instance.
+
+```bash
+podman-exec --interactive <container name> jellyroller
+```
+This will spawn an interactive shell inside the container and call the jellyroller
+binary. At first launch you will be asked to configure the jellyfin access.
+
+After this procedure, it`s possible to execute every supported jellyroller command
+with a simple invocation. 
+
+```bash
+podman-exec <container name> jellyroller <jellyroller cmd>
+```
