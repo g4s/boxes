@@ -2,6 +2,7 @@
 
 function main(){
     local baseimg="fedora"
+    local jellyroller_repo="https://github.com/LSchallot/JellyRoller.git"
     local gh_base="https://github.com/g4s/boxes/container/jellyroller"
 
     local containerdoku="${gh_base}/Readme.md"
@@ -32,14 +33,25 @@ function main(){
     fi
 
     buildah run "${cnt}" dnf update -y
+    buildah run "${cnt}" dnf upgrade -y
 
     # installing rust and cargo
     buildah run "${cnt}" dnf --no-docs -y install rust
     buildah run "${cnt}" dnf --no-docs -y install cargo
 
-    # fetch jellyroller
+    # fetch jellyroller repo
+    git init "${jellyroller_repo}" "${cnt_mnt}/opt/jellyroller"
+    buildah run "${cnt}" "cd /opt/jellyroller && cargo build"
+    buildah run "${cnt}" "ln -s /opt/jellyroller/jellyroller /usr/bin/jellyroller"
 
     ## finalizing container
+    buildah config --label org.opencontainers.image.documenenntation="${containerdoku}" "${cnt}"
+    buildah config --label org.opencontainers.image.authors="${cntauthot}" "${cnt}"
+    buildah config --label org.opencontainers.image.source="${gh_base}"
+    buildah config --annotation docs="${origdocs}" "${cnt}"
+    
+    buildah config --entrypoint "/bin/bash" "${cnt}"
+    
     if [[ -n "${dnf_cache}" ]]; then
         rm -rf "${cnt_mnt}/{${dnf_cache}"
 
