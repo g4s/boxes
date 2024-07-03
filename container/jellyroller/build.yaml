@@ -1,0 +1,11 @@
+# pypyr pipeline for building a jellyroller container
+# pypyr documentation: https://pypyr.io
+#
+# @author: Gregor A. Segner
+#
+context_parser: pypyr.parser.keyvaluepairs
+steps:
+  - name: pypyr.steps.cmd:
+      comment: build the jellyroller container
+      in:
+        cmd: bash ./jellyroller.sh -t {baseimage} -a {author} -m {authormail}
