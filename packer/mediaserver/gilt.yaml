@@ -15,3 +15,7 @@
 - git: https://github.com/g4s/de.seafi.cockpit.git
   version: master
   dest: provisioners/roles/
+
+- git: https://github.com/g4s.de.seafi.sshd.git
+  version: master
+  dest: provisioners/roles/

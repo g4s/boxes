@@ -14,7 +14,14 @@
     - role: de.seafi.tailscale
       vars:
         tailscale_auth: {{ lookup('ansible.builtin.env', 'TSC_AUTH') }}
-        
+
+    - role: de.seafi.sshd
+      vars:
+        endlessh_support: false
+        sslh_support:     false
+        knockd_support:   false
+        mosh_support:     true
+
     - role: de.seafi.cockpit
   tasks:
     - name: ensure all system package have an actual state
@@ -42,3 +49,4 @@
         vars:
           script_dir: '/usr/src/boxes/container/'
           deploy_target: localhost
+          reverseproxy: false
