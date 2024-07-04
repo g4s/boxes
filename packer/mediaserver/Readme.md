@@ -44,3 +44,9 @@ not all jellyfin settings can be provisioned.)
 It's absolutey possible to customize every step and inject your own code in
 in this project. For this you should study all code files and edit them for
 your needs.
+
+### used env variables
+
+'''
+| TSC_AUTH | string | | Tailscale authorisation key |
+'''

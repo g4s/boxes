@@ -1,20 +1,17 @@
 ---
 
-- git: https://github.com/g4s/boxes.git
-  version: master
-  files:
-    - src: container/jellyroller/jellyroller.sh
-      dest: provisioners/files/jellyroller.sh
-
-    - src: container/flexget/flexget.sh
-      dest: provisioners/files/flexget.sh
-
-    - src: container/ytdl-sub/ytdl-sub.sh
-      dest: provisioners/files/ytdl-sub.sh
-
-    - src: container/jellyfin/jellyfin.sh
-      dest: provisioners/files/jellyfin.sh 
-
 - git: https://github.com/g4s/de.seafi.mediaserver.git
+  version: master
+  dest: provisioners/roles/
+
+- git: https://github.com/g4s/de.seafi.minimalinstall.git
+  version: master
+  dest: provisioner/roles/
+
+- git: https://github.com/g4s/de.seafi.tailscale.git
+  version: master
+  dest: provisioners/roles/
+
+- git: https://github.com/g4s/de.seafi.cockpit.git
   version: master
   dest: provisioners/roles/

@@ -1,0 +1,44 @@
+# This is a very small playbook to provision a virtual mediaserver build by packer
+#
+# In reality the playbook assert, that some prequesites are satisfied and will
+# provision the machine with the help of some roles
+---
+
+- name: configure media server
+  hosts: all
+  roles:
+    - role: de.seafi.minimalinstall
+      vars:
+        dnf_cache: true
+
+    - role: de.seafi.tailscale
+      vars:
+        tailscale_auth: {{ lookup('ansible.builtin.env', 'TSC_AUTH') }}
+        
+    - role: de.seafi.cockpit
+  tasks:
+    - name: ensure all system package have an actual state
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
+    - name: ensure podman is present on host
+      ansible.builtin.dnf:
+        name: 'podman'
+        state: latest
+
+    - name: ensure buildah is present on host
+      ansible.builtin.dnf:
+        name: 'buildah'
+        state: latest
+
+    # including the role dynamicly at this point to ensure all
+    # prequesites are satisfied
+    #
+    # the role will add some additions to the host like manage
+    # storage
+    - ansible.builtin.include_role:
+        name: de.seafi.mediaserver
+        vars:
+          script_dir: '/usr/src/boxes/container/'
+          deploy_target: localhost
