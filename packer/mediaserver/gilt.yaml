@@ -4,10 +4,17 @@
   version: master
   files:
     - src: container/jellyroller/jellyroller.sh
-      dest: provisioners/jellyroller.sh
+      dest: provisioners/files/jellyroller.sh
+
     - src: container/flexget/flexget.sh
-      dest: provisioners/flexget.sh
+      dest: provisioners/files/flexget.sh
+
     - src: container/ytdl-sub/ytdl-sub.sh
-      dest: provisioners/ytdl-sub.sh
+      dest: provisioners/files/ytdl-sub.sh
+
     - src: container/jellyfin/jellyfin.sh
-      dest: provisioners/jellyfin.sh 
+      dest: provisioners/files/jellyfin.sh 
+
+- git: https://github.com/g4s/de.seafi.mediaserver.git
+  version: master
+  dest: provisioners/roles/
