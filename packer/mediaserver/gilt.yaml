@@ -1,0 +1,13 @@
+---
+
+- git: https://github.com/g4s/boxes.git
+  version: master
+  files:
+    - src: container/jellyroller/jellyroller.sh
+      dest: provisioners/jellyroller.sh
+    - src: container/flexget/flexget.sh
+      dest: provisioners/flexget.sh
+    - src: container/ytdl-sub/ytdl-sub.sh
+      dest: provisioners/ytdl-sub.sh
+    - src: container/jellyfin/jellyfin.sh
+      dest: provisioners/jellyfin.sh 
