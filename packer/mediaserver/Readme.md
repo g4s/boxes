@@ -19,5 +19,4 @@ all techniques used in the [boxes repo](https://github.com/g4s/boxes).
     - automatic deploy to tailscale
 
 ## Architecture
-
 ![Mediaserver architecture](./assets/Mediaserver.png)
