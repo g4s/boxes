@@ -25,6 +25,18 @@ all techniques used in the [boxes repo](https://github.com/g4s/boxes).
 ## Service-Deployment
 It is highly recommendet to use the provided pypyr-pipeline for deployment. This pipeline will gather all necessary information for an KVM deployment. Also it's strongly recommendet to execute this pipeline (and the corresponding packer hcl-template) directly on your hypervisor.
 
+**Attention:** the provided ansible playbook in this repo can not simply executed outside the
+pypyr-pipeline. If you whish this, you shoud study the playbook and ensure that all
+env-vars are proper set.
+
+### Requirements
+
+  - git
+  - gilt
+  - a host with KVM configured
+  - packer
+
+### pypyr deployment (recommended)
 pypyr will split the deployment in three stages:
 
   1. ensure all necessary build and provision scripts are on your local host
@@ -38,7 +50,7 @@ pypyr will split the deployment in three stages:
 
   3. creating the service container inside the vm and tucking all together.
 
-At the end you will have amostly configured usable media-system. (Unfortunately
+At the end you will have a mostly configured usable media-system. (Unfortunately
 not all jellyfin settings can be provisioned.)
 
 It's absolutey possible to customize every step and inject your own code in
@@ -47,6 +59,7 @@ your needs.
 
 ### used env variables
 
-'''
+```
+
 | TSC_AUTH | string | | Tailscale authorisation key |
-'''
+```

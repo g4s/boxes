@@ -1,7 +1,12 @@
 # This is a very small playbook to provision a virtual mediaserver build by packer
 #
 # In reality the playbook assert, that some prequesites are satisfied and will
-# provision the machine with the help of some roles
+# provision the machine with the help of some roles.
+#
+# Cause we execute this particular playbook from packer, we will not use 
+# --extra-vars parameter. For all data which is needed for successful execution,
+# it is recommended to use ENVs. (If you using the pypyr-pipeline this will
+# automaticly happen.)
 ---
 
 - name: configure media server

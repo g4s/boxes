@@ -1,0 +1,36 @@
+---
+
+context_parser: pypyr.parser.kevaluepairs
+steps:
+  - name: pypyr.steps.cmd:
+    comment: ensure gilt overly this repo
+    in:
+      cmd: gilt overlay
+
+  ###### User prompts
+  - name: pypyr.steps.set
+    comment: collect machine parameters
+    in:
+      set:
+        machine_cpus: !py int(input("Enter numberof CPU cores\n") or 2)
+        machine_memory: !py int(input("Enter machine memory in MB\n") or 4096)
+        tailscale: !py input("Enter tailscale authkey\n") or None
+
+  - name: pypyr.steps.env
+    in:
+      env:
+        set:
+          PACKER_VMEM: {machine_memory}
+          PACKER_VCPU: {machine_cpus}
+          TSC_AUTH: {tailscale}
+
+  #######
+  - name: pypyr.steps.cmd
+    comment: initiate packer
+    in:
+       cmd: packer init builders/mediaserver.hcl
+
+  - name: pypyr.steps.cmd
+    comment: start building service machine
+    in:
+      cmd: packer build builders/mediaserver.hcl
