@@ -12,8 +12,10 @@ steps:
     comment: collect machine parameters
     in:
       set:
-        machine_cpus: !py int(input("Enter numberof CPU cores\n") or 2)
+        machine_cpus  : !py int(input("Enter numberof CPU cores\n") or 2)
         machine_memory: !py int(input("Enter machine memory in MB\n") or 4096)
+        machine_disk  : !py input("Enter disk size\") or "200G"
+        machine_name  : !py input("Enter vm name\n") or "mediaserver"
         tailscale: !py input("Enter tailscale authkey\n") or None
 
   - name: pypyr.steps.env
@@ -22,6 +24,8 @@ steps:
         set:
           PACKER_VMEM: {machine_memory}
           PACKER_VCPU: {machine_cpus}
+          PACKER_DISK: {machine_disk}
+          PACKER_VMNAME: {machine_name}
           TSC_AUTH: {tailscale}
 
   #######

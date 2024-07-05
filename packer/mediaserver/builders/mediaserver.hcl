@@ -1,3 +1,13 @@
+variable "memory" {
+    type = string
+    default = env("PACKER_VMEM")
+}
+
+variable "vcpus" {
+    type = string
+    default = env("PACKER_VCPU")
+}
+
 build {
     sources = []
 
