@@ -11,13 +11,27 @@ steps:
 
   # deploy container on local host
   - name: pypyr.steps.cmd
-    comment: deploy systemd units
-    run: !py mode == 'deploy'
-    in: 
-      cmd: cp ./files/ytdl-sub.* /etc/systemd/system/
-
-  - name: pypyr.steps.cmd
-    comment: ensure systemd-timer is enabled
+    comment: create container
     run: !py mode == 'deploy'
     in:
-      cmd: systemctl enable --now ytdl-sub.timer
+      cmd:
+        - podman container create ytdl-sub --volume {configdir}:/etc/ytdl-sub --volume {mediadir}:/mnt/media
+
+  - name: pypyr.steps.cmd
+    comment: deploy jellyfin-scan script
+    run: !py mode == 'deploy'
+    in:
+      cmd: 
+       - cp ./files/rescan-jellyfin.sh /usr/bin/rescan-jellyfin
+       - chown root:root /usr/bin/rescan-jellyfin
+       - chmod u+x /usr/bin/rescan-jellyfin
+
+  - name: pypyr.steps.cmd
+    comment: deploy systemd unit
+    run: !py mode == 'deloy'
+    in:
+      cmd:
+        - cp ./files/ytdl-sub.* /etc/systemd/system
+        - chown root:root /etc/systemd/system/ytdl-sub.*
+        - systemctl daemon-reload
+        - systemctl enable --now ytdl-sub.timer

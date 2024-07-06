@@ -1,0 +1,7 @@
+[Unit]
+description=fetch video streams configured by ytdl-sub
+
+[Service]
+Type=oneshot
+ExecStart=podman starrt ytdl-dl
+ExecStop=/usr/bin/rescan-jellyfin
