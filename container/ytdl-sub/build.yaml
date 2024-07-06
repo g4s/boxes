@@ -1,0 +1,23 @@
+---
+
+context_parser: pypyr.parser.kevaluepairs
+steps:
+  # building the container with buildah
+  - name: pypyr.steps.cmd
+    comment: build ytdl-sub container
+    run: !py mode == 'deploy'
+    in:
+      cmd: bash ./ytdl-sub.sh 
+
+  # deploy container on local host
+  - name: pypyr.steps.cmd
+    comment: deploy systemd units
+    run: !py mode == 'deploy'
+    in: 
+      cmd: cp ./files/ytdl-sub.* /etc/systemd/system/
+
+  - name: pypyr.steps.cmd
+    comment: ensure systemd-timer is enabled
+    run: !py mode == 'deploy'
+    in:
+      cmd: systemctl enable --now ytdl-sub.timer
