@@ -16,17 +16,20 @@ steps:
         machine_memory: !py int(input("Enter machine memory in MB\n") or 4096)
         machine_disk  : !py input("Enter disk size\") or "200G"
         machine_name  : !py input("Enter vm name\n") or "mediaserver"
-        tailscale: !py input("Enter tailscale authkey\n") or None
+        tailscale     : !py input("Enter tailscale authkey\n") or None
+        gpu           : !py input("Enter GPU support\n") or True
 
   - name: pypyr.steps.env
     in:
       env:
         set:
-          PACKER_VMEM: {machine_memory}
-          PACKER_VCPU: {machine_cpus}
-          PACKER_DISK: {machine_disk}
+          PACKER_VMEM  : {machine_memory}
+          PACKER_VCPU  : {machine_cpus}
+          PACKER_DISK  : {machine_disk}
           PACKER_VMNAME: {machine_name}
-          TSC_AUTH: {tailscale}
+          NVIDIAGPU    : {gpu}
+          NTP_SERVER   : './files/ntp-server.tmp'
+          TSC_AUTH     : {tailscale}
 
   #######
   - name: pypyr.steps.cmd

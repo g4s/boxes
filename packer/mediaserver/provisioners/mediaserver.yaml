@@ -11,10 +11,15 @@
 
 - name: configure media server
   hosts: all
+  vars:
+    tech_user: 'mediaserver'
+    tech_group: 'mediaserver'
+    nvidia_container_repo: 'https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo'
   roles:
     - role: de.seafi.minimalinstall
       vars:
         dnf_cache: true
+        ntp_server: {{ query('lines', 'cat ./files/ntp-server.tmp') }}
 
     - role: de.seafi.tailscale
       vars:
@@ -29,15 +34,48 @@
 
     - role: de.seafi.cockpit
   tasks:
+    - name: ensure hostname is set
+      ansible.builtin.hostname: {{ lookup('ansible.builtin.env', 'PACKER_VMNAME') }}
+
+    - name: ensure technical user and group are present
+      # creating user group and home for mediaserver
+      # also create SSH-keys for automatic logins
+      block:
+        - ansible.builtin.group:
+            name: {{ tech_group }}
+            state: present
+
+        - ansible.builtin.user:
+            name: {{ tech_user }}
+            comment: 'technical user'
+            group: {{ tech_group }}
+            state: present
+            generate_ssh_key: true
+            ssh_key_bits: 2048
+            ssh_key_file: .ssh/id_rsa
+          register: tech_user_obj
+
     - name: ensure all system package have an actual state
       ansible.builtin.dnf:
         name: '*'
         state: latest
 
-    - name: ensure podman is present on host
-      ansible.builtin.dnf:
-        name: 'podman'
-        state: latest
+    - name: ensure podman and nvidia container toolkit is present on host
+      block:
+        - ansible.builtin.dnf:
+            name: 'podman'
+            state: latest
+
+        - ansible.builtin.shell:
+            cmd: |
+              curl -s -L {{ nvidia_container_repo }} | tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+              yum-config-manager --enable nvidia-container-toolkit-experimental
+          when: {{ lookup('ansible.builtin.env', 'NVIDIAGPU') }}
+
+        - ansible.builtin.dnf:
+            name: nvidia-container-toolkit
+            state: latest
+          when: {{ lookup('ansible.builtin.env', 'NVIDIAGPU') }}
 
     - name: ensure buildah is present on host
       ansible.builtin.dnf:
@@ -55,3 +93,7 @@
           script_dir: '/usr/src/boxes/container/'
           deploy_target: localhost
           reverseproxy: false
+          rffmpeg:
+            supported: true
+            ssh_priv_key: {{ tech_user_obj.ssh_key_file }}
+            ssh_pub_key: {{ tech_user_obj.ssh_public_key }}
