@@ -18,6 +18,7 @@
   roles:
     - role: de.seafi.minimalinstall
       vars:
+        hostname: {{ lookup('ansible.builtin.env', 'PACKER_VMNAME')}}
         dnf_cache: true
         ntp_server: {{ query('lines', 'cat ./files/ntp-server.tmp') }}
 
@@ -34,9 +35,6 @@
 
     - role: de.seafi.cockpit
   tasks:
-    - name: ensure hostname is set
-      ansible.builtin.hostname: {{ lookup('ansible.builtin.env', 'PACKER_VMNAME') }}
-
     - name: ensure technical user and group are present
       # creating user group and home for mediaserver
       # also create SSH-keys for automatic logins

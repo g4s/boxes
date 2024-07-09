@@ -34,6 +34,10 @@ source "qemu" "mediaserver" {
 build {
     sources = ["source.qemu.mediaserver"]
 
+    provisioner "shell-local" {
+        script = "../provisioners/get-ntp-hosts.sh
+    }
+
     provisioner "ansible" {
         playbook_file = "../provisioners/mediaserver.yaml"
         role_path = "../provisioners/roles"
