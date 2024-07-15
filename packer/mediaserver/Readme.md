@@ -13,6 +13,7 @@ all techniques used in the [boxes repo](https://github.com/g4s/boxes).
         - ytdlp-sub
         - various custom scripts
       - jellyroller for jellyfin CLI management
+      - [ersatzTV](https://github.com/ErsatzTV/ErsatzTV)
     - a unified mediastorage
       - which also included user-home auto import
       - external storage (hetzner storage box)
