@@ -92,8 +92,9 @@
           script_dir: '{{ src_dir }}/boxes/container/'
           rclone_config : ''
           remote_storage:
-            - { 'remote': 'hetzner', 'mount': '/mnt/hetzner', 'mode': 'RW' }
-            - { 'remote': 'shadow',  'mount': '/mnt/shadow',  'mode': 'RW' }
+            - { 'remote': 'hetzner',  'mount': '/mnt/hetzner' }
+            - { 'remote': 'shadow',   'mount': '/mnt/shadow' }
+            - { 'remote': 'onedrive', 'mount': '/mnt/onedrive' }
           storagemnt: '/mnt/mediaserver'
           deploy_target: localhost
           reverseproxy: false
