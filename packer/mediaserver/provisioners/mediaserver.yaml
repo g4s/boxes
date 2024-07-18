@@ -88,7 +88,13 @@
     - ansible.builtin.include_role:
         name: de.seafi.mediaserver
         vars:
-          script_dir: '/usr/src/boxes/container/'
+          src_dir: '/usr/src'
+          script_dir: '{{ src_dir }}/boxes/container/'
+          rclone_config : ''
+          remote_storage:
+            - { 'remote': 'hetzner', 'mount': '/mnt/hetzner', 'mode': 'RW' }
+            - { 'remote': 'shadow',  'mount': '/mnt/shadow',  'mode': 'RW' }
+          storagemnt: '/mnt/mediaserver'
           deploy_target: localhost
           reverseproxy: false
           rffmpeg:
