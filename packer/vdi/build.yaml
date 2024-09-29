@@ -1,0 +1,27 @@
+---
+context_parser: pypyr.parser.keys
+steps:
+  - name: pypyr.steps.default
+    comment: setting default values for pipeline
+    in:
+      defaults:
+        target: "vmware"
+
+  - name: pyyr.steps.cmd
+    comment: ensure necessary ansible roles are present on built-host
+    in:
+      cmd: 
+        - ansible-galaxy role install git+https://github.com/g4s/de.seafi.minimalinstall.git
+        - ansible-galaxy role install git+https://github.com/g4s/de.seafi.tailscale.git
+        - ansible-galaxy role install git+https://github.com/g4s/de.seafi.desktop.git
+
+  - name: pypyr.steps.cmd
+    comment: ensure packer is initiated
+    in:
+      cmd: packer init
+
+  - name: pypyr.steps.cmd
+    comment: building vmWare Image
+    run: !py target == 'vmare'
+    in:
+      cmd: packer build --only=source.vmware-iso.vdi vdi.hcl

@@ -1,0 +1,17 @@
+# provisioning playbook for virtual working boxes
+---
+
+- name: provision virtual instance
+  hosts: default
+  become: true
+  vars:
+  tasks:
+    - ansible.builtin.inlcude_role:
+        name: de.seafi.minimalinstall
+
+    - ansible.builtin.include_role:
+        name: de.seafi.tailscale
+      when: tailscale_support == True
+
+    - ansible.builtin.include_role:
+        name: de.seafi.desktop
