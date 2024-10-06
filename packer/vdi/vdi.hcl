@@ -1,4 +1,7 @@
-source "vmware" "vdi" {}
+source "vmware" "vdi" {
+    http_directory = "./files"
+    boot_command = []
+}
 source "hcloud" "vdi" {}
 source "qemu" "vdi" {}
 
